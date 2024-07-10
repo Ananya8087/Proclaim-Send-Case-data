@@ -1,3 +1,5 @@
+// contentScript.js
+
 // Function to extract data from each row
 function extractRowData(row) {
     console.debug('Extracting data from row:', row);
@@ -10,6 +12,8 @@ function extractRowData(row) {
     // Extract the bill number
     const billNumberElement = caseIdElement ? caseIdElement.nextElementSibling : null;
     console.log(billNumberElement);
+    //const claimid = caseIdElement ? caseIdElement.nextElementSibling : null;
+    //console.log("claimid:",claimid);
     const billNumber = billNumberElement ? billNumberElement.textContent.trim() : 'N/A';
     console.debug('Bill Number:', billNumber);
 
@@ -17,6 +21,7 @@ function extractRowData(row) {
     const otherData = {
         hospital: row.querySelector('div.text-truncate').textContent.trim(),
         duration: row.querySelector('div:nth-child(6)').textContent.trim()
+        // Add more fields as needed
     };
     console.debug('Other Data:', otherData);
 
@@ -114,9 +119,13 @@ setupPatientDetailsButton();
 // Dynamically create a button on the webpage for sending data
 const sendbutton = document.createElement('button');
 sendbutton.id = 'sendbuttonid';
-sendbutton.textContent = 'Send Data';
-sendbutton.style.position = 'absolute';
-sendbutton.style.opacity = '0'; // Make the button invisible
+sendbutton.textContent = 'Submit';
+sendbutton.style.position = 'fixed';
+sendbutton.style.bottom = '33px';
+sendbutton.style.right = '14px';
+sendbutton.style.padding = '5px';
+sendbutton.style.zIndex = '1000';
+sendbutton.disabled = false; // Initially enabled
 document.body.appendChild(sendbutton);
 
 // Function to fetch existing case IDs from Google Sheets
@@ -156,6 +165,8 @@ function extractData() {
                 let data = {
                     outerCaseId: rowData.caseId, // Add outer case ID
                     billNumber: rowData.billNumber, // Add bill number from row data
+                    //hospital: rowData.hospital, // Add hospital from row data
+                    //duration: rowData.duration, // Add duration from row data
                     caseId: caseIdElement.innerText.split(": ")[1].trim(),
                     claimedAmount: claimedAmountElement.innerText.trim(),
                     billAmount: billAmountElement.innerText.trim(),
@@ -169,6 +180,7 @@ function extractData() {
                     const currentCaseId = parseInt(data.caseId);
                     const caseIds = Array.isArray(existingCaseIds) ? existingCaseIds : [];
                     const exists = caseIds.length >= 1 && caseIds.includes(currentCaseId);
+                    const submitButton = document.querySelector('button.btn.primary');
 
                     if (exists) {
                         console.log('Duplicate case ID found:', currentCaseId);
@@ -195,12 +207,13 @@ function extractData() {
 
                             // Show success alert
                             alert('Data was sent successfully!');
-
-                            // Trigger the click event on the submit button
                             const submitButton = document.querySelector('button.btn.primary');
                             if (submitButton) {
                                 submitButton.click();
                             }
+
+                            // Enable the submit button permanently regardless of send button state
+                            submitButton.disabled = false;
                         })
                         .catch(error => {
                             console.error('Error sending data to Google Sheets:', error);
@@ -245,13 +258,6 @@ function observeSubmitButton() {
         observer.observe(submitButton, {
             attributes: true // Monitor attribute changes
         });
-
-        // Position the "Send Data" button over the "Submit" button
-        const submitButtonRect = submitButton.getBoundingClientRect();
-        sendbutton.style.left = `${submitButtonRect.left}px`;
-        sendbutton.style.top = `${submitButtonRect.top}px`;
-        sendbutton.style.width = `${submitButtonRect.width}px`;
-        sendbutton.style.height = `${submitButtonRect.height}px`;
     } else {
         console.log("Submit button not found");
     }
