@@ -12,9 +12,11 @@ function extractRowData(row) {
     // Extract the bill number
     const billNumberElement = caseIdElement ? caseIdElement.nextElementSibling : null;
     console.log(billNumberElement);
+    console.log(billNumberElement);
     //const claimid = caseIdElement ? caseIdElement.nextElementSibling : null;
     //console.log("claimid:",claimid);
     const billNumber = billNumberElement ? billNumberElement.textContent.trim() : 'N/A';
+    console.debug('Bill Number:', billNumber);
     console.debug('Bill Number:', billNumber);
 
     // Extract other data
@@ -24,14 +26,18 @@ function extractRowData(row) {
         // Add more fields as needed
     };
     console.debug('Other Data:', otherData);
+    console.debug('Bill Number:', billNumber);
 
     return { caseId, billNumber, ...otherData };
+    
 }
 
 // Function to capture data of a specific row and store in local storage
 function captureRowData(button) {
     const row = button.closest('.row-grid.summary-landing-widths.landing-grid--list');
     if (row) {
+        console.log('Row identified for the clicked button:', row);
+        console.log('Row identified for the clicked button:', row);
         console.log('Row identified for the clicked button:', row);
         const rowData = extractRowData(row);
         console.debug('Captured row data on button click:', rowData);
@@ -55,14 +61,25 @@ function addClickDetection() {
     const container = document.querySelector('.summary--landing-list');
     if (!container) {
         console.error('Container not found for click detection');
+        // Retrieve and print saved data from local storage
+        chrome.storage.local.get(null, (result) => {
+            console.log('Saved data from local storage:', result);
+        });
+
         return;
+    
+        
+        
     }
+    
 
     const buttons = container.querySelectorAll('.btn.btn-primary.width-100px');
     buttons.forEach(button => {
         button.addEventListener('click', () => {
             console.log('Clicked Tabulate button:', button);
+            console.log('clicked');
             captureRowData(button);
+            console.log('clicked n selected');
         });
     });
 }
@@ -189,8 +206,10 @@ function extractData() {
                         // Enable the button again (not needed in this case since we're disabling permanently)
                         sendbutton.disabled = true;
                         sendbutton.textContent = 'Send Data';
+                        console.log('Last captured row data:', rowData);
                     } else {
                         console.log('No duplicate found. Sending data to Google Sheets.');
+                        console.log('Last captured row data:', rowData);
                         fetch('https://script.google.com/macros/s/AKfycbzoIIbKi-9C4zJwjoKXg8pJ9p5pk1pWpH1p0xGox3Zm45C0xBwccJlqhxp8S3dk4uexBg/exec', {
                             method: 'POST',
                             mode: 'no-cors',
@@ -204,6 +223,7 @@ function extractData() {
                                 throw new Error('Network response was not ok');
                             }
                             console.log('Data sent to Google Sheets:', response);
+                            console.log('Last captured row data:', rowData);
 
                             // Show success alert
                             alert('Data was sent successfully!');
