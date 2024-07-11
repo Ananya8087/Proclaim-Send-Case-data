@@ -10,13 +10,15 @@ function extractRowData(row) {
     console.debug('Case ID:', caseId);
 
     // Extract the bill number
-    const billNumberElement =  row.querySelector('div:nth-child(2)');
-    console.log(billNumberElement);
-    console.log(billNumberElement);
-    //const claimid = caseIdElement ? caseIdElement.nextElementSibling : null;
-    //console.log("claimid:",claimid);
-    const billNumber = billNumberElement ? billNumberElement.textContent.trim() : 'N/A';
-    console.debug('Bill Number:', billNumber);
+
+    let billNumberElement = row.querySelector('div:nth-child(2)');
+    let billNumber = billNumberElement ? billNumberElement.textContent.trim() : 'N/A';
+    
+    if (billNumber === '') {
+        billNumberElement = caseIdElement ? caseIdElement.nextElementSibling : null;
+        billNumber = billNumberElement ? billNumberElement.textContent.trim() : 'N/A';
+    }
+
     console.debug('Bill Number:', billNumber);
 
     // Extract other data
@@ -146,12 +148,14 @@ const sendbutton = document.createElement('button');
 sendbutton.id = 'sendbuttonid';
 sendbutton.textContent = 'Send Data';
 sendbutton.style.position = 'fixed';
-sendbutton.style.bottom = '39px';
-sendbutton.style.right = '14px';
+sendbutton.style.bottom = '60px';
+sendbutton.style.right = '12px';
 sendbutton.style.padding = '5px';
 sendbutton.style.zIndex = '1000';
 sendbutton.disabled = false; // Initially enabled
 document.body.appendChild(sendbutton);
+
+
 
 // Function to fetch existing case IDs from Google Sheets
 function fetchExistingCaseIds(callback) {
