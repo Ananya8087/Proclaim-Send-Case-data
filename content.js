@@ -10,7 +10,7 @@ function extractRowData(row) {
     console.debug('Case ID:', caseId);
 
     // Extract the bill number
-    const billNumberElement = caseIdElement ? caseIdElement.nextElementSibling : null;
+    const billNumberElement =  row.querySelector('div:nth-child(2)');
     console.log(billNumberElement);
     console.log(billNumberElement);
     //const claimid = caseIdElement ? caseIdElement.nextElementSibling : null;
@@ -33,11 +33,10 @@ function extractRowData(row) {
 }
 
 // Function to capture data of a specific row and store in local storage
+// Function to capture data of a specific row and store in local storage
 function captureRowData(button) {
     const row = button.closest('.row-grid.summary-landing-widths.landing-grid--list');
     if (row) {
-        console.log('Row identified for the clicked button:', row);
-        console.log('Row identified for the clicked button:', row);
         console.log('Row identified for the clicked button:', row);
         const rowData = extractRowData(row);
         console.debug('Captured row data on button click:', rowData);
@@ -55,6 +54,7 @@ function captureRowData(button) {
         console.error('Row not found for the clicked button');
     }
 }
+
 
 // Function to add click detection to "Tabulate" buttons
 function addClickDetection() {
@@ -94,7 +94,8 @@ function setupPatientDetailsButton() {
                 console.debug('Message sent to background script. Response:', response);
             });
         }
-        addClickDetection(); // Add click detection for buttons
+        addClickDetection();
+        printAllRowsData(); // Add click detection for buttons
     }, 500);
 }
 
@@ -112,7 +113,7 @@ function captureAllRowsData() {
     const rows = container.querySelectorAll('.row-grid.summary-landing-widths.landing-grid--list');
     console.debug('Found rows:', rows.length, rows);
     if (rows.length > 0) {
-        console.log("found", rows);
+        console.log("found");
     } else {
         console.log("nothing");
     }
@@ -133,12 +134,19 @@ function captureAllRowsData() {
 // Start checking for the container and rows
 setupPatientDetailsButton();
 
+// Function to print all rows data to console
+function printAllRowsData() {
+    const rowData = captureAllRowsData();
+    console.log('All rows data:', rowData);
+}
+
+
 // Dynamically create a button on the webpage for sending data
 const sendbutton = document.createElement('button');
 sendbutton.id = 'sendbuttonid';
-sendbutton.textContent = 'Submit';
+sendbutton.textContent = 'Send Data';
 sendbutton.style.position = 'fixed';
-sendbutton.style.bottom = '33px';
+sendbutton.style.bottom = '39px';
 sendbutton.style.right = '14px';
 sendbutton.style.padding = '5px';
 sendbutton.style.zIndex = '1000';
