@@ -42,6 +42,9 @@ function captureRowData(button) {
         console.log('Row identified for the clicked button:', row);
         const rowData = extractRowData(row);
         console.debug('Captured row data on button click:', rowData);
+        // Add current date and time
+        const now = new Date();
+        rowData.timestamp = now.toString(); 
 
         // Send captured data to background script
         chrome.runtime.sendMessage({ action: 'captureData', data: rowData }, response => {
@@ -52,6 +55,8 @@ function captureRowData(button) {
         chrome.storage.local.set({ 'lastCapturedRow': rowData }, () => {
             console.log('Row data saved to local storage:', rowData);
         });
+
+        
     } else {
         console.error('Row not found for the clicked button');
     }
@@ -159,7 +164,7 @@ document.body.appendChild(sendbutton);
 
 // Function to fetch existing case IDs from Google Sheets
 function fetchExistingCaseIds(callback) {
-    fetch('https://script.google.com/macros/s/AKfycby5W3yEvd-M252PJQlb8pv_LY2kb797-_pYKccF7NwCMgAbpRZaKQKSQ4iO-UvU5rYeeA/exec')
+    fetch('https://script.google.com/macros/s/AKfycbzBo0GbeeFSRNwwNix_0ropxbBc0Wg7gfEaxXXRMra4SjY_EfAEoeGaynIUvh_KxOmS/exec')
         .then(response => response.json())
         .then(allData => {
             console.log('Existing case IDs:', allData.caseIds);
@@ -189,9 +194,13 @@ function extractData() {
             let billAmountElement = document.querySelector('div.text-right.text-truncate[ngbtooltip="Total bill"] > span');
             let nmeAmountElement = document.querySelector('div.text-right.text-truncate[ngbtooltip="Total NME"] > span');
             let discountElement = document.querySelector('div.text-right.text-truncate[ngbtooltip="Total disc."] > span');
+            
 
             if (caseIdElement && claimedAmountElement && billAmountElement && nmeAmountElement && discountElement) {
+                const now = new Date();
                 let data = {
+                    timestamp: rowData.timestamp,
+                    sendTimestamp: now.toString(), 
                     outerCaseId: rowData.caseId, // Add outer case ID
                     billNumber: rowData.billNumber, // Add bill number from row data
                     //hospital: rowData.hospital, // Add hospital from row data
@@ -200,15 +209,23 @@ function extractData() {
                     claimedAmount: claimedAmountElement.innerText.trim(),
                     billAmount: billAmountElement.innerText.trim(),
                     nmeAmount: nmeAmountElement.innerText.trim(),
-                    discount: discountElement.innerText.trim()
+                    discount: discountElement.innerText.trim(),
+                    nmePercentage: ((parseFloat(nmeAmountElement.innerText.trim().replace(',', '')) / parseFloat(billAmountElement.innerText.trim().replace(',', ''))) * 100).toFixed(2),
+
+                    timespent: new Date(now - new Date(rowData.timestamp)).toISOString().slice(11, 19)
                 };
+                console.log("nm%:",data.nmePercentage);
                 console.log('Data to send:', data);
 
                 // Fetch existing case IDs from Google Sheets
                 fetchExistingCaseIds(existingCaseIds => {
-                    const currentCaseId = parseInt(data.caseId);
+                    const currentCaseId = parseInt(data.billNumber);
+                    console.log("currentCaseId:",currentCaseId);
+
                     const caseIds = Array.isArray(existingCaseIds) ? existingCaseIds : [];
+                    console.log("caseIds:",caseIds);
                     const exists = caseIds.length >= 1 && caseIds.includes(currentCaseId);
+                    console.log(exists);
                     const submitButton = document.querySelector('button.btn.primary');
 
                     if (exists) {
@@ -222,7 +239,7 @@ function extractData() {
                     } else {
                         console.log('No duplicate found. Sending data to Google Sheets.');
                         console.log('Last captured row data:', rowData);
-                        fetch('https://script.google.com/macros/s/AKfycby5W3yEvd-M252PJQlb8pv_LY2kb797-_pYKccF7NwCMgAbpRZaKQKSQ4iO-UvU5rYeeA/exec', {
+                        fetch('https://script.google.com/macros/s/AKfycbzBo0GbeeFSRNwwNix_0ropxbBc0Wg7gfEaxXXRMra4SjY_EfAEoeGaynIUvh_KxOmS/exec', {
                             method: 'POST',
                             mode: 'no-cors',
                             headers: {
