@@ -159,7 +159,7 @@ document.body.appendChild(sendbutton);
 
 // Function to fetch existing case IDs from Google Sheets
 function fetchExistingCaseIds(callback) {
-    fetch('https://script.google.com/macros/s/AKfycbzO0XQ7yIOAA35R53yevSpsT5vE20W7CrQSEg6Bius4QsPEftIORAC2NkxM8tdlnzgnxw/exec')
+    fetch('https://script.google.com/macros/s/AKfycby5W3yEvd-M252PJQlb8pv_LY2kb797-_pYKccF7NwCMgAbpRZaKQKSQ4iO-UvU5rYeeA/exec')
         .then(response => response.json())
         .then(allData => {
             console.log('Existing case IDs:', allData.caseIds);
@@ -222,7 +222,7 @@ function extractData() {
                     } else {
                         console.log('No duplicate found. Sending data to Google Sheets.');
                         console.log('Last captured row data:', rowData);
-                        fetch('https://script.google.com/macros/s/AKfycbzO0XQ7yIOAA35R53yevSpsT5vE20W7CrQSEg6Bius4QsPEftIORAC2NkxM8tdlnzgnxw/exec', {
+                        fetch('https://script.google.com/macros/s/AKfycby5W3yEvd-M252PJQlb8pv_LY2kb797-_pYKccF7NwCMgAbpRZaKQKSQ4iO-UvU5rYeeA/exec', {
                             method: 'POST',
                             mode: 'no-cors',
                             headers: {
